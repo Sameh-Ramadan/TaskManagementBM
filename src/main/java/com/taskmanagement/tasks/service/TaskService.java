@@ -1,6 +1,7 @@
 package com.taskmanagement.tasks.service;
 
 
+import com.taskmanagement.tasks.dto.TaskSpecification;
 import com.taskmanagement.tasks.model.Task;
 import com.taskmanagement.tasks.repository.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,9 +44,9 @@ public class TaskService {
         return true;
     }
 
-//    public List<Task> searchTasks(String title, String description, String status) {
-//        Specification<Task> spec = new TaskSpecification(title, description, status);
-//        return taskRepository.findAll(spec);
-//    }
+    public List<Task> searchTasks(String title, String description, String status) {
+        Specification<Task> spec = new TaskSpecification(title, description, status);
+        return taskRepository.findAll(spec);
+    }
 
 }

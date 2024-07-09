@@ -5,26 +5,23 @@
 package com.taskmanagement.security.config;
 
 import com.taskmanagement.security.jwt.filter.JwtRequestFilter;
+import com.taskmanagement.users.service.TaskUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.web.filter.CorsFilter;
-import org.springframework.security.core.userdetails.User;
+
+import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 /**
  *
@@ -33,9 +30,6 @@ import org.springframework.security.core.userdetails.User;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
-    private static final String ADMIN = "ADMIN";
-    private static final String USER = "USER";
 
     @Bean
     public JwtRequestFilter jwtRequestFilter() {
@@ -57,8 +51,7 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req -> req
-                .requestMatchers("/admin/**").hasRole(ADMIN)
-                .requestMatchers("/user/**").hasAnyRole(USER, ADMIN)
+                //.requestMatchers("/tasks/**").hasRole(ADMIN)
                 .requestMatchers("/authenticate")
                 .permitAll()
                 .anyRequest()
@@ -82,33 +75,6 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() throws Exception {
-        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-        manager.createUser(User
-                .withUsername("thomas")
-                .password(encoder().encode("paine"))
-                .roles(ADMIN).build());
-        manager.createUser(User
-                .withUsername("bill")
-                .password(encoder().encode("withers"))
-                .roles(USER).build());
-        return manager;
-    }
-
-    @Bean
-    public PasswordEncoder encoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public CorsFilter corsFilter() {
-        UrlBasedCorsConfigurationSource source
-                = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        config.addAllowedOrigin("*");
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
-        source.registerCorsConfiguration("/**", config);
-        return new CorsFilter(source);
+        return new TaskUserDetailsService();
     }
 }
